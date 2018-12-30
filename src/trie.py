@@ -272,29 +272,29 @@ class Trie(object):
         node_type = self._get_node_type(node)
 
         if node_type == NODE_TYPE_BLANK:
-            if PRINT: print 'blank'
+            if PRINT: print ('blank')
             return [pack_nibbles(with_terminator(key)), value]
 
         elif node_type == NODE_TYPE_BRANCH:
-            if PRINT: print 'branch'
+            if PRINT: print ('branch')
             if not key:
-                if PRINT: print '\tdone', node
+                if PRINT: print ('\tdone', node)
                 node[-1] = value
-                if PRINT: print '\t', node
+                if PRINT: print ('\t', node)
 
             else:
-                if PRINT: print 'recursive branch'
-                if PRINT: print '\t', node, key, value
+                if PRINT: print ('recursive branch')
+                if PRINT: print ('\t', node, key, value)
                 new_node = self._update_and_delete_storage(
                     self._decode_to_node(node[key[0]]),
                     key[1:], value)
-                if PRINT: print '\t', new_node
+                if PRINT: print ('\t', new_node)
                 node[key[0]] = self._encode_node(new_node)
-                if PRINT: print '\t', node
+                if PRINT: print ('\t', node)
             return node
 
         elif is_key_value_type(node_type):
-            if PRINT: print 'kv'
+            if PRINT: print ('kv')
             return self._update_kv_node(node, key, value)
 
     def _update_and_delete_storage(self, node, key, value):
@@ -308,8 +308,8 @@ class Trie(object):
         node_type = self._get_node_type(node)
         curr_key = without_terminator(unpack_to_nibbles(node[0]))
         is_inner = node_type == NODE_TYPE_EXTENSION
-        if PRINT: print 'this node is an extension node?',  is_inner
-        if PRINT: print 'cur key, next key', curr_key, key
+        if PRINT: print ('this node is an extension node?',  is_inner)
+        if PRINT: print ('cur key, next key', curr_key, key)
 
         # find longest common prefix
         prefix_length = 0
@@ -321,44 +321,44 @@ class Trie(object):
         remain_key = key[prefix_length:]
         remain_curr_key = curr_key[prefix_length:]
 
-        if PRINT: print 'remain keys..'
-        if PRINT: print prefix_length, remain_key, remain_curr_key
+        if PRINT: print ('remain keys..')
+        if PRINT: print (prefix_length, remain_key, remain_curr_key)
 
         # if the keys were the same, then either this is a terminal node or not.  if yes, return [key, value]. if not, its an extension node, so the value of this node points to another node, from which we use remaining key.
         
         if remain_key == [] == remain_curr_key:
-            if PRINT: print 'keys were same', node[0], key
+            if PRINT: print ('keys were same', node[0], key)
             if not is_inner:
-                if PRINT: print 'not an extension node'
+                if PRINT: print ('not an extension node')
                 return [node[0], value]
-            if PRINT: print 'yes an extension node!'
+            if PRINT: print ('yes an extension node!')
             new_node = self._update_and_delete_storage(
                 self._decode_to_node(node[1]), remain_key, value)
 
         elif remain_curr_key == []:
-            if PRINT: print 'old key exhausted'
+            if PRINT: print ('old key exhausted')
             if is_inner:
-                if PRINT: print '\t is extension', self._decode_to_node(node[1])
+                if PRINT: print ('\t is extension', self._decode_to_node(node[1]))
                 new_node = self._update_and_delete_storage(
                     self._decode_to_node(node[1]), remain_key, value)
             else:
-                if PRINT: print '\tnew branch'
+                if PRINT: print ('\tnew branch')
                 new_node = [BLANK_NODE] * 17
                 new_node[-1] = node[1]
                 new_node[remain_key[0]] = self._encode_node([
                     pack_nibbles(with_terminator(remain_key[1:])),
                     value
                 ])
-            if PRINT: print new_node
+            if PRINT: print (new_node)
         else:
-            if PRINT:  print 'making a branch'
+            if PRINT:  print ('making a branch')
             new_node = [BLANK_NODE] * 17
             if len(remain_curr_key) == 1 and is_inner:
-                if PRINT: print 'key done and is inner'
+                if PRINT: print ('key done and is inner')
                 new_node[remain_curr_key[0]] = node[1]
             else:
-                if PRINT: print 'key not done or not inner', node, key, value
-                if PRINT: print remain_curr_key
+                if PRINT: print ('key not done or not inner', node, key, value)
+                if PRINT: print (remain_curr_key)
                 new_node[remain_curr_key[0]] = self._encode_node([
                     pack_nibbles(
                         adapt_terminator(remain_curr_key[1:], not is_inner)
@@ -372,14 +372,14 @@ class Trie(object):
                 new_node[remain_key[0]] = self._encode_node([
                     pack_nibbles(with_terminator(remain_key[1:])), value
                 ])
-            if PRINT: print new_node
+            if PRINT: print (new_node)
 
         if prefix_length:
             # create node for key prefix
-            if PRINT: print 'prefix length', prefix_length
+            if PRINT: print ('prefix length', prefix_length)
             new_node= [pack_nibbles(curr_key[:prefix_length]),
                     self._encode_node(new_node)]
-            if PRINT: print 'new node type', self._get_node_type(new_node)
+            if PRINT: print ('new node type', self._get_node_type(new_node))
             return new_node
         else:
             return new_node
@@ -641,7 +641,7 @@ class Trie(object):
         if len(key) > 32:
             raise Exception("Max key length is 32")
 
-        if not isinstance(value, (str, unicode)):
+        if not isinstance(value, str):
             raise Exception("Value must be string")
 
         if value == '':
@@ -651,7 +651,7 @@ class Trie(object):
             self.root_node,
             bin_to_nibbles(str(key)),
             value)
-        if PRINT: print 'root hash before db commit', self.get_root_hash().encode('hex')
+        if PRINT: print ('root hash before db commit', self.get_root_hash().encode('hex'))
         self.db.commit()
 
     def root_hash_valid(self):
@@ -672,7 +672,7 @@ if __name__ == "__main__":
         if sys.argv[1] == 'insert':
             t = Trie(sys.argv[2], sys.argv[3].decode('hex'))
             t.update(sys.argv[4], sys.argv[5])
-            print encode_node(t.root_hash)
+            print (encode_node(t.root_hash))
         elif sys.argv[1] == 'get':
             t = Trie(sys.argv[2], sys.argv[3].decode('hex'))
-            print t.get(sys.argv[4])
+            print (t.get(sys.argv[4]))

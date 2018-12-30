@@ -19,9 +19,9 @@ def debug(label):
     def deb(f):
         def inner(*args, **kwargs):
             i = random.randrange(1000000)
-            print label, i, 'start', args
+            print (label, i, 'start', args)
             x = f(*args, **kwargs)
-            print label, i, 'end', x
+            print (label, i, 'end', x)
             return x
         return inner
     return deb

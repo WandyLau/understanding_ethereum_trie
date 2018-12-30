@@ -153,7 +153,7 @@ def encode_length(L, offset):
 
 
 def encode(s):
-    if isinstance(s, (str, unicode)):
+    if isinstance(s, str):
         s = str(s)
         if len(s) == 1 and ord(s) < 128:
             return s
